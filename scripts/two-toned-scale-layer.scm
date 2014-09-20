@@ -10,7 +10,7 @@
 
 ; The Two Toned Scaling method does not actually do anything with tones.
 
-(define (script-fu-two-toned-scale-layer image layer interpolation new-width new-height)
+(define (script-fu-two-toned-scale-layer image layer interpolation blur-factor new-width new-height)
     (gimp-undo-push-group-start image) ; Start undo group
     (let*
         (
@@ -34,8 +34,8 @@
         RUN-NONINTERACTIVE
         image
         layer
-        horizontal-blur-factor
-        vertical-blur-factor
+        (* horizontal-blur-factor blur-factor)
+        (* vertical-blur-factor blur-factor)
         1 ; 1 = RLE, 'RLE' should work but throws undefined for some reason...
     )
     
@@ -75,9 +75,14 @@
     SF-IMAGE "Image" 0
     SF-DRAWABLE "Layer" 0 ; 'Drawable'? Actually a ref to the active layer!
     SF-ENUM "Interpolation Method" '("InterpolationType" "cubic") ; Scaling interpolation method to use!
+    SF-ADJUSTMENT "Blur Factor" '(0.5 0 1 0.001 0 4 SF-SPINNER)
     SF-ADJUSTMENT _"New Width" '(150 0 262144 1 100 0 SF-SPINNER) ; 262144 is the max layer dimension
     SF-ADJUSTMENT _"New Height" '(150 0 262144 1 100 0 SF-SPINNER)
 )
+
+; Documentation is hard to find so here's something:
+; SF-ADJUSTMENT _"Label" '(initial minimum maximum arrow-step page-step decimal-places type)
+
 (script-fu-menu-register
     "script-fu-two-toned-scale-layer"
     "<Image>/Layer/"
